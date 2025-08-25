@@ -1,0 +1,149 @@
+# Substitution variables used through the codebase
+substitutions:
+  libary_folder: esphome-modular-lvgl-buttons
+  
+  lightbulb:         "\U000F0335"
+  ceiling_light:     "\U000F0769"
+  lamp:              "\U000F06B5"
+  floor_lamp:        "\U000F08DD"
+  string_lights:     "\U000F12BA"
+  track_light:       "\U000F0914"
+  bulkhead_light:    "\U000F1A2F"
+  led_strip:         "\U000F07D6"
+  coach_lamp:        "\U000F1020"
+  ceiling_fan_light: "\U000F1798"
+  bed:               "\U000F02E3"
+  sunny:             "\U000F05A8"
+
+  icon_font: light40
+  text_font: roboto24
+  text_color: white
+  bg_color: black
+  button_on_color: "ep_orange"
+  button_off_color: "very_dark_gray"
+  icon_on_color: "yellow"
+  icon_off_color: "gray"
+  label_on_color: "white"
+  label_off_color: "gray"
+  button_text_color: "white"
+  button_height_single: '109px'
+  button_height_double: '228px'
+  button_width: '150px'
+  touchscreen_idle_timeout: "30s"
+  touchscreen_daytime_brightness: "100%"
+  touchscreen_nighttime_brightness: "50%"
+  # Boot screen configuration
+  boot_screen_delay: 60s
+
+  # LCD backlight modes - Code in backlight.yaml
+  # Day mode is set to Sunrise
+  # Evening mode is set to sunset
+  # Set Night mode to Mightnight here
+  screen_night_hour: '0'
+  screen_night_minute: '0'
+
+  # Screen Size
+  screen_height: '480px'
+  screen_width: '480px'
+
+esphome:
+  name: "kitchen-touch"
+  friendly_name: "Kitchen Lights"
+
+api:
+
+logger:
+#  level: info
+#  logs:
+#    i2c.idf: info
+#    touchscreen: info
+#    scheduler: none
+
+# Time update script - This is run once per second. Use it to update any time related labels.
+script:
+  - id: time_update
+    then:
+      - lambda: |-
+          // No operation
+
+packages:
+  # If you need Wi-Fi include this
+  wifi: !include esphome-modular-lvgl-buttons/modules/base/wifi.yaml
+  # If your touch screen has a backlight include this
+  backlight: !include esphome-modular-lvgl-buttons/modules/base/backlignt.yaml
+  # All the colors
+  colors: !include esphome-modular-lvgl-buttons/modules/base/color.yaml
+  # Fonts you need
+  fonts: !include esphome-modular-lvgl-buttons/modules/base/fonts.yaml
+  # Some basic sensors
+  sensors: !include esphome-modular-lvgl-buttons/modules/sensors/sensors_base.yaml
+  # Styles + Themes
+  theme_style: !include esphome-modular-lvgl-buttons/modules/base/theme_style.yaml
+  # Switch to this one for debugging
+  # theme_style: !include esphome-modular-lvgl-buttons/modules/base/theme_style_debug.yaml
+
+  # Harware description file - for your board
+  hardware: !include esphome-modular-lvgl-buttons/modules/hardware/guition-esp32-s3-4848s040.yaml
+
+  # Basic boot screen with ESPHome logo and device diagnostic info
+  boot_screen: !include esphome-modular-lvgl-buttons/modules/screens/boot_screen_480x480.yaml
+
+
+  button_1_state: !include
+    file: esphome-modular-lvgl-buttons/modules/sensors/local_relay_button_state.yaml
+    vars:
+      uid: button_1
+      ha_name: Light 1
+      entity_id: internal_relay_1
+  button_2_state: !include
+    file: esphome-modular-lvgl-buttons/modules/sensors/local_relay_button_state.yaml
+    vars:
+      uid: button_2
+      ha_name: Light 2
+      entity_id: internal_relay_2
+  button_3_state: !include
+    file: esphome-modular-lvgl-buttons/modules/sensors/local_relay_button_state.yaml
+    vars:
+      uid: button_3
+      ha_name: Light 3
+      entity_id: internal_relay_3      
+      
+
+# -------------------------------------------------------------------------
+# LVGL pages and buttons
+# -------------------------------------------------------------------------
+lvgl:
+# Main Page
+  pages:
+    - id: main_page
+      layout:
+        type: flex
+        flex_flow: COLUMN_WRAP
+      width: 100%
+      bg_color: black
+      bg_opa: cover
+      pad_all: 5
+      <<: !include
+        file: esphome-modular-lvgl-buttons/modules/sections/swipe_navigation.yaml
+      widgets:
+        - button: !include
+            file: esphome-modular-lvgl-buttons/modules/buttons/local_relay_button.yaml
+            vars:
+              uid: button_1
+              height: $button_height_double
+              text: Kitchen
+              icon: $lightbulb
+        - button: !include
+            file: esphome-modular-lvgl-buttons/modules/buttons/local_relay_button.yaml
+            vars:
+              uid: button_2
+              height: $button_height_single
+              text: Deck Door
+              icon: $lightbulb
+        - button: !include
+            file: esphome-modular-lvgl-buttons/modules/buttons/local_relay_button.yaml
+            vars:
+              uid: button_3
+              height: $button_height_single
+              text: test
+              icon: $lightbulb               

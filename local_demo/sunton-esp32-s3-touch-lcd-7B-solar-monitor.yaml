@@ -81,38 +81,38 @@ script:
 
 packages:
   # If you need Wi-Fi include this
-  wifi: !include modules/base/wifi.yaml
+  wifi: !include esphome-modular-lvgl-buttons/modules/base/wifi.yaml
   # If your touch screen has a backlight include this
-  backlight: !include modules/base/backlignt.yaml
+  backlight: !include esphome-modular-lvgl-buttons/modules/base/backlignt.yaml
   # All the colors
-  colors: !include modules/base/color.yaml
+  colors: !include esphome-modular-lvgl-buttons/modules/base/color.yaml
   # Fonts you need
-  fonts: !include modules/base/fonts.yaml
+  fonts: !include esphome-modular-lvgl-buttons/modules/base/fonts.yaml
   # Some basic sensors
-  sensors: !include modules/sensors/sensors_base.yaml
+  sensors: !include esphome-modular-lvgl-buttons/modules/sensors/sensors_base.yaml
   # Styles + Themes
-  theme_style: !include modules/base/theme_style.yaml
+  theme_style: !include esphome-modular-lvgl-buttons/modules/base/theme_style.yaml
   # Switch to this one for debugging
-  # theme_style: !include modules/base/theme_style_debug.yaml
+  # theme_style: !include esphome-modular-lvgl-buttons/modules/base/theme_style_debug.yaml
 
   # Harware description file
-  hardware: !include modules/hardware/waveshare-esp32-s3-touch-lcd-7B.yaml
+  hardware: !include esphome-modular-lvgl-buttons/modules/hardware/waveshare-esp32-s3-touch-lcd-7B.yaml
   
   # Basic boot screen with ESPHome logo and device diagnostic info
-  boot_screen: !include modules/screens/boot_screen_600x1024.yaml
+  boot_screen: !include esphome-modular-lvgl-buttons/modules/screens/boot_screen_600x1024.yaml
 
   # Get solar panel info from Enphase
-  solar: !include modules/solar/sensors_assets_solar.yaml
+  solar: !include esphome-modular-lvgl-buttons/modules/solar/sensors_assets_solar.yaml
   # Get backup Battery info from Enphase
-  battery: !include modules/solar/sensors_assets_battery.yaml
+  battery: !include esphome-modular-lvgl-buttons/modules/solar/sensors_assets_battery.yaml
   # Icons for todays weather
   weather_icons_45: !include
-    file: modules/weather/weather_icons.yaml
+    file: esphome-modular-lvgl-buttons/modules/weather/weather_icons.yaml
     vars:
       size: 45
 
   solar_icons_45: !include
-    file: modules/solar/solar_icons.yaml
+    file: esphome-modular-lvgl-buttons/modules/solar/solar_icons.yaml
     vars:
       size: 45        
 
@@ -122,7 +122,7 @@ text_sensor:
     entity_id: weather.home
     id: weather_condition
     on_value:
-        then:  !include { file: modules/weather/weather_icons_update.yaml, vars: { size: "45", id: weather_condition_icon, input_id: weather_condition  } }
+        then:  !include { file: esphome-modular-lvgl-buttons/modules/weather/weather_icons_update.yaml, vars: { size: "45", id: weather_condition_icon, input_id: weather_condition  } }
 
   - platform: homeassistant
     entity_id: weather.home
@@ -178,7 +178,7 @@ lvgl:
         pad_row: 10
       bg_color: White
       <<: !include
-        file: modules/sections/swipe_navigation.yaml      
+        file: esphome-modular-lvgl-buttons/modules/sections/swipe_navigation.yaml      
       widgets:
 # Time/date display box
         - obj:
@@ -687,69 +687,69 @@ lvgl:
 # Graphics and Fonts
 #-------------------------------------------
 image:
-  - file: modules/assets/clock.svg
+  - file: esphome-modular-lvgl-buttons/modules/assets/clock.svg
     id: clock_icon_60
     resize: 60x60
     type: RGB565
     transparency: alpha_channel
 
-  - file: modules/assets/house.svg
+  - file: esphome-modular-lvgl-buttons/modules/assets/house.svg
     id: house_icon_60
     resize: 60x60
     type: RGB565
     transparency: alpha_channel
 
-  - file: modules/assets/produced_icon.svg
+  - file: esphome-modular-lvgl-buttons/modules/assets/produced_icon.svg
     id: produced_icon_60
     resize: 60x60
     type: RGB565
     transparency: alpha_channel
 
-  - file: modules/assets/arrow_right_gray.svg
+  - file: esphome-modular-lvgl-buttons/modules/assets/arrow_right_gray.svg
     id: arrow_right_gray
     resize: 25x15
     type: RGB565
     transparency: alpha_channel
 
-  - file: modules/assets/arrow_right_green.svg
+  - file: esphome-modular-lvgl-buttons/modules/assets/arrow_right_green.svg
     id: arrow_right_green
     resize: 25x15
     type: RGB565
     transparency: alpha_channel
 
-  - file: modules/assets/arrow_right_blue.svg
+  - file: esphome-modular-lvgl-buttons/modules/assets/arrow_right_blue.svg
     id: arrow_right_blue
     resize: 25x15
     type: RGB565
     transparency: alpha_channel
 
 font:
-  - file: "modules/assets/epVisuelt-Regular.ttf"
+  - file: "esphome-modular-lvgl-buttons/modules/assets/epVisuelt-Regular.ttf"
     id: ep90
     size: 90
     bpp: 8
     
-  - file: "modules/assets/epVisuelt-Regular.ttf"
+  - file: "esphome-modular-lvgl-buttons/modules/assets/epVisuelt-Regular.ttf"
     id: ep70
     size: 70
     bpp: 8
 
-  - file: "modules/assets/epVisuelt-Regular.ttf"
+  - file: "esphome-modular-lvgl-buttons/modules/assets/epVisuelt-Regular.ttf"
     id: ep40
     size: 40
     bpp: 8     
 
-  - file: "modules/assets/epVisuelt-Regular.ttf"
+  - file: "esphome-modular-lvgl-buttons/modules/assets/epVisuelt-Regular.ttf"
     id: ep32
     size: 32
     bpp: 8
 
-  - file: "modules/assets/epVisuelt-Regular.ttf"
+  - file: "esphome-modular-lvgl-buttons/modules/assets/epVisuelt-Regular.ttf"
     id: ep24
     size: 24
     bpp: 8
 
-  - file: "modules/assets/epVisuelt-Regular.ttf"
+  - file: "esphome-modular-lvgl-buttons/modules/assets/epVisuelt-Regular.ttf"
     id: ep16
     size: 16
     bpp: 8            
