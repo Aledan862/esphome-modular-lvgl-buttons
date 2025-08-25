@@ -2,6 +2,7 @@
 
 These files have the correct path to be use above this libary
 
+```
 ── esphome-modular-lvgl-buttons
    ├── custom_components
    │   └── noaa_tides
@@ -18,7 +19,7 @@ These files have the correct path to be use above this libary
        ├── solar
        ├── tides
        └── weather
-
+```
 Copy thes files up above this libary
 
 Example 
