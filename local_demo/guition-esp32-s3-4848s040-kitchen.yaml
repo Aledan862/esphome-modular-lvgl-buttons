@@ -93,13 +93,13 @@ packages:
     file: esphome-modular-lvgl-buttons/modules/sensors/local_relay_button_state.yaml
     vars:
       uid: button_1
-      ha_name: Light 1
+      ha_name: Kitchen
       entity_id: internal_relay_1
   button_2_state: !include
     file: esphome-modular-lvgl-buttons/modules/sensors/local_relay_button_state.yaml
     vars:
       uid: button_2
-      ha_name: Light 2
+      ha_name: Deck Door
       entity_id: internal_relay_2
   button_3_state: !include
     file: esphome-modular-lvgl-buttons/modules/sensors/local_relay_button_state.yaml
