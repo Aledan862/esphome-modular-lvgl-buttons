@@ -103,6 +103,8 @@ packages:
 
   # Get solar panel info from Enphase
   solar: !include modules/solar/sensors_assets_solar.yaml
+  # Get realtime solar panel info from Enphase
+  solar_realtime: !include modules/solar/sensors_assets_solar_realtime.yaml  
   # Get backup Battery info from Enphase
   battery: !include modules/solar/sensors_assets_battery.yaml
   # Icons for todays weather

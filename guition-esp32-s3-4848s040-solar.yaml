@@ -1,5 +1,10 @@
 # Substitution variables used through the codebase
 substitutions:
+  libary_folder: "."
+  
+  envoy_id: !secret envoy_id
+  enpower_id: !secret enpower_id
+  
   lightbulb:         "\U000F0335"
   ceiling_light:     "\U000F0769"
   lamp:              "\U000F06B5"
@@ -49,6 +54,15 @@ esphome:
   friendly_name: "Guition480"
   comment: "Guition ESP32-4848S040 480px * 480px Smart Screen"
 
+api:
+
+logger:
+#  level: info
+#  logs:
+#    i2c.idf: info
+#    touchscreen: info
+#    scheduler: none
+
 # Time update script - This is run once per second. Use it to update any time related labels.
 script:
   - id: time_update
@@ -56,14 +70,11 @@ script:
       - lambda: |-
           // No operation
 
+
+
 packages:
-  # Generic configuration for ESP32 screens
   # If you need Wi-Fi include this
   wifi: !include modules/base/wifi.yaml
-  # Basic ESP 32 stuff
-  base: !include modules/base/base.yaml
-  # If you have a touch screen include this
-  touchscreen: !include modules/base/touchscreen.yaml
   # If your touch screen has a backlight include this
   backlight: !include modules/base/backlignt.yaml
   # All the colors
@@ -74,12 +85,28 @@ packages:
   sensors: !include modules/sensors/sensors_base.yaml
   # Styles + Themes
   theme_style: !include modules/base/theme_style.yaml
+  # Switch to this one for debugging
+  # theme_style: !include modules/base/theme_style_debug.yaml
 
   # Harware description file - for your board
   hardware: !include modules/hardware/guition-esp32-s3-4848s040.yaml
 
+  # Basic boot screen with ESPHome logo and device diagnostic info
+  boot_screen: !include modules/screens/boot_screen_480x480.yaml
+
   # Extra code for pages
+  # Get solar panel info from Enphase
   solar: !include modules/solar/sensors_assets_solar.yaml
+  # Icons for todays weather
+  weather_icons_45: !include
+    file: modules/weather/weather_icons.yaml
+    vars:
+      size: 45
+      
+  solar_icons_80: !include
+    file: modules/solar/solar_icons.yaml
+    vars:
+      size: 45      
 
   # This section will Update button and relay state from Home Assistant
   # Any button that has real time updates needs a section here
@@ -105,22 +132,32 @@ packages:
       uid: button_4
       entity_id: light.athom_rgb_light_d93662_rgb_light_strip
 
+text_sensor:
+# Weather info from Homeassistant
+  - platform: homeassistant
+    entity_id: weather.home
+    id: weather_condition
+    on_value:
+        then:  !include { file: modules/weather/weather_icons_update.yaml, vars: { size: "45", id: weather_condition_icon, input_id: weather_condition  } }
+
+  - platform: homeassistant
+    entity_id: weather.home
+    attribute: temperature
+    id: temperature
+    on_value:
+        then:
+          # Update weather_condition
+          - lvgl.label.update:
+              id: weather_temperature_today
+              text:
+                format: "%s°"
+                args: [ 'id(temperature).state.c_str()' ]
 
 # -------------------------------------------------------------------------
 # LVGL pages and buttons
 # -------------------------------------------------------------------------
 lvgl:
-  theme: !include { file: modules/base/theme.yaml }
-  page_wrap: true
-
-  # Boot screen
-  top_layer: !include
-    file: modules/screens/boot_screen.yaml
-    vars:
-      height: $screen_height
-      width: $screen_width
-
-  # Main Page
+# Main Page
   pages:
     - id: main_page
       layout:
@@ -176,6 +213,85 @@ lvgl:
       <<: !include
         file: modules/sections/swipe_navigation.yaml
       widgets:
+      
+# Info bar
+        - obj:
+            width: 480px
+            height: 50px
+            pad_left: 4
+            layout:
+              type: flex
+              flex_flow: ROW
+              flex_align_main: SPACE_BETWEEN
+              flex_align_cross: CENTER
+              flex_align_track: CENTER
+              pad_column: 5
+              pad_row: 5
+            widgets:
+              - obj:
+                  width: 110
+                  height: 45
+                  layout:
+                    type: FLEX
+                    flex_flow: COLUMN_WRAP
+                    flex_align_cross: start
+                    flex_align_track: center
+                    pad_column: 3
+                    pad_row: 1
+                  widgets:
+                    - image:
+                        id: battery_soc_image
+                        src: battery_100_45
+                    - label:
+                        id: battery_soc_percentage
+                        text_font: ep24
+                        text_color: black
+                        text: ??%
+                    - label:
+                        text_font: ep16
+                        text_color: black
+                        text: Charge
+
+              - obj:
+                  width: 250
+                  height: 45
+                  layout:
+                    type: flex
+                    flex_flow: ROW
+                    flex_align_main: CENTER
+                    flex_align_cross: CENTER
+                    flex_align_track: CENTER
+                    pad_column: 5
+                    pad_row: 5
+                  widgets:
+                    - image:
+                        id: grid_status_icon
+                        src: grid_ok_45
+                    - label:
+                        id: grid_status_label
+                        text_font: ep24
+                        text_color: black
+                        text: Grid unknown
+              - obj:
+                  width: 110
+                  height: 45
+                  layout:
+                    type: flex
+                    flex_flow: ROW
+                    flex_align_main: CENTER
+                    flex_align_cross: CENTER
+                    flex_align_track: CENTER
+                    pad_column: 5
+                    pad_row: 5
+                  widgets:
+                    - image:
+                        id: weather_condition_icon
+                        src: unknown_45
+                    - label:
+                        id: weather_temperature_today
+                        text_font: ep32
+                        text_color: black
+                        text: "---°"      
         - obj:
             width: 480px
             height: 116px
@@ -207,12 +323,12 @@ lvgl:
                     pad_row: 1
                   widgets:
                     - label:
-                        id: daily_imported_watts
+                        id: daily_energy_imported_watts
                         text_font: ep28
                         text_color: black
                         text: 888.8
                     - label:
-                        id: daily_imported_watts_units
+                        id: daily_energy_imported_watts_units
                         text_font: ep14
                         text_color: black
                         text: kWh
@@ -248,12 +364,12 @@ lvgl:
                         pad_bottom: 4
                         src: house_icon
                     - label:
-                        id: daily_consumption_watts
+                        id: daily_energy_consumption_watts
                         text_color: ep_orange
                         text_font: ep28
                         text: 888.8
                     - label:
-                        id: daily_consumption_watts_unit
+                        id: daily_energy_consumption_watts_unit
                         text_color: ep_orange
                         text_font: ep14
                         text: kWh
@@ -288,12 +404,12 @@ lvgl:
                         pad_row: 1px
                     widgets:
                       - label:
-                          id: daily_exported_watts
+                          id: daily_energy_exported_watts
                           text_font: ep28
                           text_color: black
                           text: 888.8
                       - label:
-                          id: daily_exported_watts_unit
+                          id: daily_energy_exported_watts_unit
                           text_font: ep14
                           text_color: black
                           text: kWh
@@ -324,12 +440,12 @@ lvgl:
                     pad_row: 1
                   widgets:
                     - label:
-                        id: daily_solar_production_watts
+                        id: daily_energy_production_watts
                         text_font: ep28
                         text_color: ep_blue
                         text: 888.8
                     - label:
-                        id: daily_solar_production_watts_label
+                        id: daily_energy_production_watts_label
                         text_font: ep14
                         text_color: ep_blue
                         text: kWh
@@ -346,7 +462,7 @@ lvgl:
                     width: 25
 
               - image:
-                    id: daily_net_watts_icon
+                    id: daily_energy_net_watts_icon
                     grid_cell_row_pos: 1
                     grid_cell_column_pos: 5
                     pad_top: 10
@@ -367,12 +483,12 @@ lvgl:
                         pad_row: 1
                     widgets:
                       - label:
-                          id: daily_net_watts
+                          id: daily_energy_net_watts
                           text_font: ep28
                           text_color: black
                           text: 888.8
                       - label:
-                          id: daily_net_watts_units
+                          id: daily_energy_net_watts_units
                           text_font: ep14
                           text_color: black
                           text: kWh
@@ -450,25 +566,16 @@ image:
     transparency: alpha_channel
 
 font:
-  - file: "modules/assets/epVisuelt-Regular.ttf"
-    id: ep90
-    size: 90
-    bpp: 8
-    
-  - file: "modules/assets/epVisuelt-Regular.ttf"
-    id: ep80
-    size: 80
-    bpp: 8
-
-  - file: "modules/assets/epVisuelt-Regular.ttf"
-    id: ep60
-    size: 60
-    bpp: 8     
 
   - file: "modules/assets/epVisuelt-Regular.ttf"
     id: ep32
     size: 32
     bpp: 8
+
+  - file: "modules/assets/epVisuelt-Regular.ttf"
+    id: ep28
+    size: 28
+    bpp: 8    
 
   - file: "modules/assets/epVisuelt-Regular.ttf"
     id: ep24
@@ -479,4 +586,9 @@ font:
     id: ep16
     size: 16
     bpp: 8
+    
+  - file: "modules/assets/epVisuelt-Regular.ttf"
+    id: ep14
+    size: 14
+    bpp: 8    
 

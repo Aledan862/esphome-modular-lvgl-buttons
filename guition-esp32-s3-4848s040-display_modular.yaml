@@ -43,11 +43,6 @@ substitutions:
   # Screen Size
   screen_height: '480px'
   screen_width: '480px'
-  
-# external_components:
-  # - source: github://pr#9190
-    # components: [lvgl]
-    # refresh: 1h  
 
 esphome:
   name: "guition-4848s040"
@@ -94,6 +89,15 @@ packages:
 
   # This section will Update button state and relay state from Home Assistant
   # Any button that has real time updates needs a section here
+
+  # Button 1 - Local relay button with state updates
+  # ha_name will show up as a control in Home Assistant
+  button_1_state: !include
+    file: modules/sensors/local_relay_button_state.yaml
+    vars:
+      uid: button_1
+      ha_name: Light 1
+      entity_id: internal_relay_1
 
   # Button 2 - Standard light button with state updates
   button_2_state: !include
