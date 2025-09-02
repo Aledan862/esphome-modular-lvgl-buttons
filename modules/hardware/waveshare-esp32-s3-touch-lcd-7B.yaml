@@ -10,6 +10,7 @@ esp32:
   board: esp32-s3-devkitc-1
   variant: esp32s3
   flash_size: 16MB
+  cpu_frequency: 240MHz
   framework:
     type: esp-idf
 
@@ -25,20 +26,20 @@ preferences:
 #-------------------------------------------
 external_components:
   - source: github://pr#10071
-    components: [waveshare_io]
+    components: [waveshare_io_ch32v003]
     refresh: 1h
 
-waveshare_io:
+waveshare_io_ch32v003:
   - id: waveshare_io_hub
 
 #-------------------------------------------
 # LCD Back light
 #-------------------------------------------
 output:
-  - platform: waveshare_io
+  - platform: waveshare_io_ch32v003
     id: backlight_output
 
-  - platform: waveshare_io
+  - platform: waveshare_io_ch32v003
     id: pwm_backlight_output
     inverted: true
     min_power: 0.03
@@ -50,7 +51,7 @@ switch:
     id: exio2
     restore_mode: ALWAYS_ON
     pin: 
-      waveshare_io: waveshare_io_hub
+      waveshare_io_ch32v003: waveshare_io_hub
       number: 2
       mode: 
         output: true
@@ -86,7 +87,7 @@ touchscreen:
   i2c_id: bus_a
   interrupt_pin: GPIO4
   reset_pin:
-    waveshare_io: waveshare_io_hub
+    waveshare_io_ch32v003: waveshare_io_hub
     number: 1
     mode: OUTPUT
   # on_touch:
@@ -124,7 +125,7 @@ display:
     pclk_pin: 7
     pclk_inverted: true
     reset_pin:
-      waveshare_io: waveshare_io_hub
+      waveshare_io_ch32v003: waveshare_io_hub
       number: 3
     hsync_back_porch: 152
     hsync_front_porch: 48
