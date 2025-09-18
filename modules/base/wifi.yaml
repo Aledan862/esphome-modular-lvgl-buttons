@@ -17,6 +17,6 @@ ota:
       then:
         - logger.log: "Starting OTA update"
         - logger.log: "Pausing LVGL and turning off backlight"
-        - light.turn_off: display_backlight
+        # - light.turn_off: display_backlight
         - lvgl.pause:
   - platform: web_server

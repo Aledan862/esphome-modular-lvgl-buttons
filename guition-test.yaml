@@ -1,0 +1,163 @@
+esphome:
+  name: guition-test
+  friendly_name: guition_test
+
+ota:
+ - platform: esphome
+   password: "0b16b359015197a1cd7c85ca27b73604"
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "iu6DIN4/XesFSebB/oihIky6r1NRG/xWNQQcWcNiKIc="
+
+# Substitution variables used through the codebase
+substitutions:
+  lightbulb:         "\U000F0335"
+  ceiling_light:     "\U000F0769"
+  lamp:              "\U000F06B5"
+  floor_lamp:        "\U000F08DD"
+  string_lights:     "\U000F12BA"
+  track_light:       "\U000F0914"
+  bulkhead_light:    "\U000F1A2F"
+  led_strip:         "\U000F07D6"
+  coach_lamp:        "\U000F1020"
+  ceiling_fan_light: "\U000F1798"
+  bed:               "\U000F02E3"
+  sunny:             "\U000F05A8"
+
+  icon_font: light40
+  text_font: roboto24
+  text_color: white
+  bg_color: black
+  button_on_color: "ep_orange"
+  button_off_color: "very_dark_gray"
+  icon_on_color: "yellow"
+  icon_off_color: "gray"
+  label_on_color: "white"
+  label_off_color: "gray"
+  button_text_color: "white"
+  button_height_single: '109px'
+  button_height_double: '228px'
+  button_width: '150px'
+  touchscreen_idle_timeout: "30s"
+  touchscreen_daytime_brightness: "100%"
+  touchscreen_nighttime_brightness: "50%"
+  # Boot screen configuration
+  boot_screen_delay: 60s
+
+  # LCD backlight modes - Code in backlight.yaml
+  # Day mode is set to Sunrise
+  # Evening mode is set to sunset
+  # Set Night mode to Mightnight here
+  screen_night_hour: '0'
+  screen_night_minute: '0'
+
+  # Screen Size
+  screen_height: '480px'
+  screen_width: '480px'
+
+logger:
+#  level: info
+#  logs:
+#    i2c.idf: info
+#    touchscreen: info
+#    scheduler: none
+
+# Time update script - This is run once per second. Use it to update any time related labels.
+script:
+  - id: time_update
+    then:
+      - lambda: |-
+          // No operation
+
+packages:
+  # If you need Wi-Fi include this
+  wifi: !include modules/base/wifi.yaml
+  # If your touch screen has a backlight include this
+  # backlight: !include modules/base/backlignt.yaml
+  # All the colors
+  colors: !include modules/base/color.yaml
+  # Fonts you need
+  fonts: !include modules/base/fonts.yaml
+  # Some basic sensors
+  sensors: !include modules/sensors/sensors_base.yaml
+  # Styles + Themes
+  theme_style: !include modules/base/theme_style.yaml
+  # Switch to this one for debugging
+  # theme_style: !include modules/base/theme_style_debug.yaml
+
+  # Harware description file - for your board
+  hardware: !include modules/hardware/waveshare-my.yaml #modules/hardware/guition-esp32-s3-4848s040.yaml
+
+  # Basic boot screen with ESPHome logo and device diagnostic info
+  boot_screen: !include modules/screens/boot_screen_480x480.yaml
+
+  # This section will Update button state and relay state from Home Assistant
+  # Any button that has real time updates needs a section here
+
+  # Button 1 - Local relay button with state updates
+  # ha_name will show up as a control in Home Assistant
+  # button_1_state: !include
+  #   file: modules/sensors/local_relay_button_state.yaml
+  #   vars:
+  #     uid: button_1
+  #     ha_name: Light 1
+  #     entity_id: internal_relay_1
+
+  # # Button 2 - Standard light button with state updates
+  # button_2_state: !include
+  #   file: modules/sensors/local_relay_button_state.yaml
+  #   vars:
+  #     uid: button_2
+  #     ha_name: Light 2
+  #     entity_id: internal_relay_2
+  # # Button 4 - Standard light button with state updates including dimming
+  # button_3_state: !include
+  #   file: modules/sensors/local_relay_button_state.yaml
+  #   vars:
+  #     uid: button_3
+  #     ha_name: Light 3
+  #     entity_id: internal_relay_3
+# -------------------------------------------------------------------------
+# LVGL pages and buttons
+# -------------------------------------------------------------------------
+lvgl:
+# Main Page
+  pages:
+    - id: main_page
+      layout:
+        type: flex
+        flex_flow: COLUMN_WRAP
+      width: 100%
+      styles: page_style
+      bg_color: black
+      bg_opa: cover
+      <<: !include
+        file: modules/sections/swipe_navigation.yaml
+      widgets:
+        # Button 2 - Standard light button with state updates
+        - button: !include
+            file: modules/buttons/switch_button.yaml
+            vars:
+              uid: button_1
+              height: $button_height_single
+              text: Button 1
+              icon: $lightbulb
+              entity_id: "switch.athom_smart_plug_v3_50ebc0_switch"
+        # # Button 3 - Empty button moves the buttons below it down one
+        # - button: !include
+        #     file: modules/buttons/transparent_empty_button.yaml
+        #     vars:
+        #       uid: empty_3
+        #       height: $button_height_single
+        # # Button 4 - Dimming (double hight) light button with state updates
+        # - button: !include
+        #     file: modules/buttons/dimmer_light_button.yaml
+        #     vars:
+        #       uid: button_4
+        #       height: $button_height_double
+        #       text: RGB light
+        #       icon: $string_lights
+        #       entity_id: light.athom_rgb_light_d93662_rgb_light_strip
+    

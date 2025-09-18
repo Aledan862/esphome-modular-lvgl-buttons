@@ -17,29 +17,20 @@ wifi:
 
 packages:
   # Harware description file
-  hardware: !include modules/hardware/waveshare-esp32-s3-touch-lcd-2.8c.yaml
+  hardware: !include modules/hardware/waveshare-esp32-s3-touch-lcd-4.3.yaml
 
 # LVGL Configuration
 lvgl:
-  - id: lvgl_display
-    displays:
-      - my_display
-    widgets:
-      - label:
-          id: coord_text
-          align: CENTER
-          text_align: CENTER
-          text: 'Touch the screen'
+  pages:
+    - id: main_page
+      layout:
+        type: flex
+        flex_flow: COLUMN_WRAP
+      width: 100%
+      styles: page_style
+      bg_color: black
+      bg_opa: cover
+      <<: !include
+        file: modules/sections/swipe_navigation.yaml
 
-touchscreen:
-  - id: !extend my_touchscreen
-    on_update:
-        - lvgl.label.update:
-            id: coord_text
-            text: !lambda return str_sprintf("Touch points:\n id=%d x=%d, y=%d", touches[0].id, touches[0].x, touches[0].y);
-        - lambda: |-
-            for (auto touch: touches)  {
-                if (touch.state <= 2) {
-                  ESP_LOGI("Touch points:", "id=%d x=%d, y=%d", touch.id, touch.x, touch.y);
-                }
-            }
+

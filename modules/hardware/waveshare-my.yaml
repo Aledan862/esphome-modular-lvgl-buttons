@@ -1,0 +1,142 @@
+
+
+esphome:
+  name: waveshare-esp32-s3-touch-4
+  friendly_name: waveshare-esp32-s3-touch-4
+  platformio_options:
+    build_flags: "-DBOARD_HAS_PSRAM"
+    board_build.arduino.memory_type: qio_opi
+    board_build.flash_mode: dio
+    # board_upload.flash_size: "8MB"
+    board_upload.maximum_ram_size: 524288
+    board_upload.maximum_size: 8388608
+  on_boot:
+    then:
+      - delay: 5s
+      - lvgl.widget.hide: boot_screen
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_IDF_TARGET: "esp32s3"
+      CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240: y
+      CONFIG_ESPTOOLPY_FLASHMODE_QIO: y
+      CONFIG_ESPTOOLPY_FLASHFREQ_80M: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
+      CONFIG_IDF_EXPERIMENTAL_FEATURES: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM: y
+      CONFIG_SPIRAM_MODE_OCT: y
+      CONFIG_SPIRAM_RODATA: y
+      CONFIG_SPIRAM_SPEED_80M: y
+      CONFIG_FREERTOS_HZ: "1000"
+      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: y
+      COMPILER_OPTIMIZATION_SIZE: y
+# Enable Home Assistant API
+
+# captive_portal:
+psram:
+  mode: octal
+  speed: 80MHz
+
+# Enable logging
+logger:
+  level: INFO
+
+i2c:
+  sda: GPIO08
+  scl: GPIO09
+  scan: True
+  id: bus_a
+
+tca9555:
+  id: io_ex
+
+# Toggles backlight of Waveshare ESP32-S3-Touch-LCD-4.3
+switch:
+  - platform: gpio
+    name: "Backlight Toggle"
+    pin: 
+      tca9555: io_ex
+      number: 2
+      mode:
+        output: true
+      inverted: False
+    restore_mode: ALWAYS_ON
+
+display:
+  - platform: rpi_dpi_rgb
+    id: my_display
+    auto_clear_enabled: false
+    update_interval: never
+    color_order: RGB
+    pclk_frequency: 16MHz
+    dimensions:
+      width: 800
+      height: 480
+    de_pin:
+      number: 5
+    hsync_pin:
+      number: 46
+      ignore_strapping_warning: true
+    vsync_pin:
+      number: 3
+      ignore_strapping_warning: true
+    pclk_pin: 
+      number: 7
+    pclk_inverted: false
+    hsync_back_porch: 10 #30
+    hsync_front_porch: 20 #210 
+    hsync_pulse_width: 10 #30
+    vsync_back_porch: 10 #4
+    vsync_front_porch: 10 #4
+    vsync_pulse_width: 10 #4
+    data_pins:
+      red:
+        - 1         #r3
+        - 2         #r4
+        - 42        #r5
+        - 41        #r6
+        - 40        #r7
+      blue:
+        - 14        #b3
+        - 38        #b4
+        - 18        #b5
+        - 17        #b6
+        - 10        #b7
+      green:
+        - 39        #g2
+        - 0         #g3
+        - 45        #g4
+        - 48        #g5
+        - 47        #g6
+        - 21        #g7
+
+touchscreen:
+  platform: gt911
+  id: my_touchscreen
+  display: my_display
+  interrupt_pin: GPIO4
+  reset_pin:
+    tca9555: io_ex
+    number: 1
+    mode: output
+  on_touch:
+    - lambda: |-
+          ESP_LOGD("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+              touch.x,
+              touch.y,
+              touch.x_raw,
+              touch.y_raw
+              );
+  on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - logger.log: "LVGL resuming"
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+            # - light.turn_on: display_backlight
