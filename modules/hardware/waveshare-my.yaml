@@ -47,13 +47,17 @@ logger:
   level: INFO
 
 i2c:
-  sda: GPIO08
-  scl: GPIO09
-  scan: True
-  id: bus_a
-
+  - id: bus_a
+    sda: GPIO08
+    scl: GPIO09
+    scan: True
+  - id: bus_b
+    sda: GPIO15
+    scl: GPIO07
+    scan: True
 tca9555:
   id: io_ex
+  i2c_id: bus_a
 
 # Toggles backlight of Waveshare ESP32-S3-Touch-LCD-4.3
 switch:
@@ -68,61 +72,19 @@ switch:
     restore_mode: ALWAYS_ON
 
 display:
-  - platform: rpi_dpi_rgb
+  - platform: mipi_rgb
+    model: WAVESHARE-4-480x480
     id: my_display
-    auto_clear_enabled: false
-    update_interval: never
-    color_order: RGB
-    pclk_frequency: 16MHz
-    dimensions:
-      width: 800
-      height: 480
-    de_pin:
-      number: 5
-    hsync_pin:
-      number: 46
-      ignore_strapping_warning: true
-    vsync_pin:
-      number: 3
-      ignore_strapping_warning: true
-    pclk_pin: 
-      number: 7
-    pclk_inverted: false
-    hsync_back_porch: 10 #30
-    hsync_front_porch: 20 #210 
-    hsync_pulse_width: 10 #30
-    vsync_back_porch: 10 #4
-    vsync_front_porch: 10 #4
-    vsync_pulse_width: 10 #4
-    data_pins:
-      red:
-        - 1         #r3
-        - 2         #r4
-        - 42        #r5
-        - 41        #r6
-        - 40        #r7
-      blue:
-        - 14        #b3
-        - 38        #b4
-        - 18        #b5
-        - 17        #b6
-        - 10        #b7
-      green:
-        - 39        #g2
-        - 0         #g3
-        - 45        #g4
-        - 48        #g5
-        - 47        #g6
-        - 21        #g7
 
 touchscreen:
   platform: gt911
   id: my_touchscreen
   display: my_display
-  interrupt_pin: GPIO4
+  i2c_id: bus_b
+  interrupt_pin: GPI16
   reset_pin:
     tca9555: io_ex
-    number: 1
+    number: 0
     mode: output
   on_touch:
     - lambda: |-
